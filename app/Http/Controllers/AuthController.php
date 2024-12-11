@@ -10,7 +10,7 @@ use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Password;
 use Session;
 use Carbon\Carbon;
-use Mail;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
