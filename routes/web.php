@@ -24,10 +24,10 @@ route::prefix('auth')->group(function () {
     Route::post('login', [AuthController::class, 'login']);
     Route::get('signout', [AuthController::class,'signout']);
     Route::get('forgotfrom', function () { return view('auth.forgot_password'); });
-    Route::post('forgot-password', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
 
     Route::get('reset-password/{token}', function (string $token) { return view('auth.reset-password', ['token' => $token]);})->name('password.reset');
-
+    Route::post('ResetPassword',[AuthController::class, 'ResetPasswordUpdate']);
 });
 
     Route::get('send-test-email', function () {

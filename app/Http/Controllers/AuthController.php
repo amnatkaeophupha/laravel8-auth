@@ -200,20 +200,61 @@ class AuthController extends Controller
 
     }
 
-    public function sendResetLinkEmail(Request $request)
+    // public function sendResetLinkEmail(Request $request)
+    // {
+    //     $request->validate(['email' => 'required|email|exists:users,email']);
+
+    //     $status = Password::sendResetLink($request->only('email'));
+
+    //     // Check if the reset link was sent successfully
+    //     if ($status === Password::RESET_LINK_SENT) {
+    //         // If successful, return a success message
+    //        return redirect('auth')->withErrors(['status' => 'A password reset link has been sent to your email address.']);
+
+    //     }
+
+    //     return back()->withErrors(['email' => 'We were unable to send a password reset link to the provided email address.']);
+
+    // }
+
+    public function sendResetLink(Request $request)
     {
+
         $request->validate(['email' => 'required|email|exists:users,email']);
 
-        $status = Password::sendResetLink($request->only('email'));
+        $token = Str::random(64);
 
-        // Check if the reset link was sent successfully
-        if ($status === Password::RESET_LINK_SENT) {
-            // If successful, return a success message
-           return redirect('auth')->withErrors(['status' => 'A password reset link has been sent to your email address.']);
+        DB::table('password_resets')->insert(['email'=>$request->email, 'token'=>$token, 'created_at'=>Carbon::now()]);
 
-        }
+        $action_link = route('password.reset',['token'=>$token,'email'=>$request->email]);
 
-        return back()->withErrors(['email' => 'We were unable to send a password reset link to the provided email address.']);
+        $body ="We are received a request to reset the password for <b> Your Laravel 8 App ARU</b> account associated with".$request->email."You can reset your password by clicking the link below";
 
+        Mail::send('auth.email-forgot',['action_link'=>$action_link,'body'=>$body],function($message) use($request){
+            $message->from('noreply@example.com','You App Name');
+            $message->to($request->email,'You name')->subject('Reset Password');
+        });
+
+        return redirect('auth/forgotfrom')->withErrors(['status' => 'A password reset link has been sent to your email address.']);
     }
+
+    public function ResetPasswordUpdate(Request $request)
+    {
+
+         $check_token = DB::table('password_resets')->where(['email'=>$request->email, 'token'=>$request->token])->first();
+
+        if($check_token){
+
+            User::where(['email'=>$request->email])->update(['password'=> Hash::make($request->password)]);
+
+            DB::table('password_resets')->where(['email'=>$request->email])->delete();
+
+            return redirect('auth')->withErrors(['status' => 'You password has been changed ! You can login with new password.']);
+
+        }else{
+
+            return redirect('auth')->with('fail', 'ไม่สามารถเปลี่ยนรหัสผ่าน');
+        }
+    }
+
 }
