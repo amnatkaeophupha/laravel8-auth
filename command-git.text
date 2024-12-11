@@ -1,0 +1,26 @@
+
+git add .
+git commit -m "edit sign login bold"
+git branch -M main
+git remote add origin https://github.com/amnatkaeophupha/laravel-8-auth.git
+$ git push -u origin main
+
+การ upload project ขึ้น git ครั้งแรก
+echo "# laravel-8-auth" >> README.md  // ทำการเขียน README.md ไปลงใน Project
+git inti  // ติดตั้ง .gitignore โดย vs code จะเริ่มมีการเปลี่ยนสี
+git add README.md  // add file ทั้งหมด ใช้คำสั่ง git add . /* ไฟล์จะเริ่มเปลี่ยนสีเขียว */
+git commit -m "first commit"
+git branch -M main  // ทำการเปลี่ยนชื่อเป็น Main หลัก
+git remote add origin https://github.com/amnatkaeophupha/laravel-8-auth.git // ทำการ remote ไป github
+git push -u origin main // นำไฟล์ขึ้น git
+
+/* ทำการแก้ไข code แล้ว ไฟล์จะเปลี่ยนสี แล้ว upload */
+git add .
+git status /* ดูว่าตัวไหนถูกแก้ไข */
+git commit -m "edit text"
+git push -u origin main
+
+// ดูการเปลี่ยนแปล ดูที่ vscode เมนู git จะมีเลขบอกสามารถกู้คืนได้
+
+
+
