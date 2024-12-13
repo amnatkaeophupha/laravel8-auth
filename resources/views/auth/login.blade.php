@@ -52,6 +52,10 @@ z-index: 999999">
                         <div class="alert alert-danger">{{ Session::get('fail') }}</div>
                         @endif
 
+                        @if(Session::has('status'))
+                        <div class="alert alert-success">{{ Session::get('status') }}</div>
+                        @endif
+
                         @error('status')<div class="alert alert-success">{{ $message }}</div>@enderror
 
                         <form action="{{ url('auth/login')}}" method="post" id="login_validator" class="login_validator">

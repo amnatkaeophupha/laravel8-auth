@@ -43,7 +43,7 @@ class AuthController extends Controller
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->phone = $request->phone;
-        $user->role = 'admin';
+        // $user->role = 'admin';
         $rec = $user->save();
 
         if ($rec) {
@@ -54,6 +54,60 @@ class AuthController extends Controller
 
             return back()->with('fail','You have Registered fail');
         }
+    }
+
+    public function signup_user_email(Request $request)
+    {
+        $request->validate([
+            'email'=> 'required|email|unique:users',
+            'password' =>'required|string|min:6'
+        ]);
+
+        $token = Str::random(64);
+
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->phone = $request->phone;
+        $user->email_verified = $token;
+        $user->role = 'user';
+        $rec = $user->save();
+
+        if ($rec) {
+
+            $action_link = route('email_verified',['email_verified'=>$token,'email'=>$request->email]);
+
+            $body ="กรุณาทำการยืนยันการใช้งานเพื่อเปิดสิทธ์การ login เข้าใช้ระบบ";
+
+            Mail::send('auth.email_verified',['action_link'=>$action_link,'body'=>$body],function($message) use($request){
+                $message->from('noreply@example.com','You App Name');
+                $message->to($request->email,'You name')->subject('Reset Password');
+            });
+
+            return redirect('auth')->with('status','กรุณาทำการตรวจสอบ Email เพื่อยืนยันการใช้งาน');
+
+        }else{
+
+            return back()->with('fail','You have Registered fail');
+        }
+    }
+
+    public function VerifyUser(Request $request)
+    {
+        $check_token = User::where(['email'=>$request->email, 'email_verified'=> $request->email_verified])->first();
+
+        if ($check_token) {
+
+            User::where(['email'=>$request->email])->update([
+                'password'=> Hash::make($request->password),
+                'activate' => 'on'
+            ]);
+
+            return redirect('auth')->withErrors(['status' => 'You can login with email account and password.']);
+        }
+
+        return redirect('auth')->with('fail', 'ไม่สามารถประมวลผลได้');
     }
 
     public function login(Request $request)
@@ -199,23 +253,6 @@ class AuthController extends Controller
         return redirect('auth');
 
     }
-
-    // public function sendResetLinkEmail(Request $request)
-    // {
-    //     $request->validate(['email' => 'required|email|exists:users,email']);
-
-    //     $status = Password::sendResetLink($request->only('email'));
-
-    //     // Check if the reset link was sent successfully
-    //     if ($status === Password::RESET_LINK_SENT) {
-    //         // If successful, return a success message
-    //        return redirect('auth')->withErrors(['status' => 'A password reset link has been sent to your email address.']);
-
-    //     }
-
-    //     return back()->withErrors(['email' => 'We were unable to send a password reset link to the provided email address.']);
-
-    // }
 
     public function sendResetLink(Request $request)
     {
